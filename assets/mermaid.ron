@@ -1,0 +1,11 @@
+(
+    schema_version: 1,
+    id: "mermaid", display_name: "Mermaid", symbol: 'M',
+    tags: [Demonic,Biological], base_stats: (transportable: Some(3)),
+    action_rules: [
+        (kind: Move, target: (origin: Source, pattern: Any([SymmetricalLeap([(1,2)]),FullStep]), filters: [Empty], count: 1), effects: [MoveSource]),
+        (kind: Take, target: (origin: Source, pattern: Any([SymmetricalLeap([(1,2)]),FullStep]), filters: [Enemy,Occupied], count: 1), effects: [DamageTarget(1),MoveSourceIfTargetRemoved]),
+    ],
+    abilities: [(id: "hasten", display_name: "Hasten summon", target: (origin: Source, pattern: FullStep, filters: [Friendly,Occupied,Archetype("portal")], count: 1), selection: ScheduledSummon, cooldown: 2, effects: [ModifyScheduledEvent(2)])],
+    triggers: [(id: "demonic_mana", event: Removed, effects: [AddMana(1)])],
+)

@@ -1,0 +1,5 @@
+(
+    schema_version: 1, id: "lasting_momentum", display_name: "Lasting Momentum",
+    kind: Utility, cost: (actions: 0, mana: 2),
+    target: None, effects: [IncreaseActionsPerTurn(1)],
+)

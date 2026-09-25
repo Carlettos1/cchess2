@@ -1,0 +1,12 @@
+(
+    schema_version: 1,
+    id: "ram", display_name: "Ram", symbol: 'J',
+    tags: [Structure], base_stats: (strength: 4),
+    action_rules: [(kind: Move, target: (origin: Source, pattern: Step([N,E,S,W]), filters: [Empty], count: 1), effects: [MoveSource])],
+    abilities: [(id: "charge", display_name: "Penetrating charge", target: (origin: Source, pattern: Step([N,E,S,W]), filters: [], count: 1), selection: Direction, cost: (actions: 1, mana: 1), cooldown: 3, effects: [Traverse((
+        stop_when: (target: Impenetrable, comparison: Ge, source: Strength),
+        on_pass: [DamageTarget(1)],
+        on_stop: [MoveSourceToLastEmpty,DamageTarget(1),DamageSource(1)],
+        on_end: [MoveSourceToLastEmpty],
+    ))])],
+)

@@ -1,0 +1,9 @@
+(
+    schema_version: 1,
+    id: "tesla_tower", display_name: "Tesla Tower", symbol: 'T',
+    tags: [Structure], base_stats: (),
+    action_rules: [(kind: Move, target: (origin: Source, pattern: Step([N,E,S,W]), filters: [Empty], count: 1), effects: [MoveSource]),
+        (kind: Take, target: (origin: Source, pattern: Step([N,E,S,W]), filters: [Enemy,Occupied], count: 1), effects: [DamageTarget(1),MoveSourceIfTargetRemoved])],
+    abilities: [(id: "overload", display_name: "Delayed deactivation", target: (origin: Source, pattern: SelfOnly, filters: [Friendly, Occupied], count: 1), cost: (actions: 1, mana: 2), cooldown: 6, effects: [Schedule(after: 2, effects: [ForEach(target: (origin: Board, pattern: SelfOnly, filters: [Enemy,Occupied,HasTag(Structure)], count: 1), effects: [AddStatus(kind: Deactivate, duration: 6)])])])],
+    triggers: [],
+)

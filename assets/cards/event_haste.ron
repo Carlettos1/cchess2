@@ -1,0 +1,6 @@
+(
+    schema_version: 1, id: "event_haste", display_name: "Event Haste",
+    kind: Utility, cost: (actions: 0, mana: 1),
+    target: FriendlyScheduled, effects: [ModifyScheduledEvent(2)],
+    
+)

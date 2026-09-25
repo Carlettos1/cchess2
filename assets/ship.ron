@@ -1,0 +1,8 @@
+(
+    schema_version: 1,
+    id: "ship", display_name: "Ship", symbol: 'S',
+    tags: [Structure], base_stats: (),
+    action_rules: [(kind: Move, target: (origin: Source, pattern: Ray(min: 1, max: Some(3), directions: [N,NE,E,SE,S,SW,W,NW]), filters: [Empty], count: 1), effects: [MoveSource]),
+        (kind: Take, target: (origin: Source, pattern: FullStep, filters: [Enemy, Occupied], count: 1), effects: [DamageTarget(1), MoveSourceIfTargetRemoved])],
+    abilities: [(id: "broadside", display_name: "Broadside", target: (origin: Source, pattern: RelativeStep([FR,R,BR,BL,L,FL]), filters: [Occupied], count: 1), effects: [DamageTarget(1)], selection: All, cooldown: 12)]
+)

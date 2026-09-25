@@ -1,0 +1,25 @@
+(
+    schema_version: 1,
+    id: "bishop",
+    display_name: "Bishop",
+    symbol: 'B',
+    tags: [Biological],
+    base_stats: (transportable: Some(2)),
+    action_rules: [
+        (
+            kind: Move,
+            target: (origin: Source, pattern: InfiniteRay([NE, SE, SW, NW]), filters: [Empty], count: 1),
+            conditions: [HasNotActed],
+            cost: (actions: 1, mana: 0),
+            effects: [MoveSource],
+        ),
+        (
+            kind: Take,
+            target: (origin: Source, pattern: InfiniteRay([NE, SE, SW, NW]), filters: [Enemy, Occupied], count: 1),
+            conditions: [HasNotActed],
+            cost: (actions: 1, mana: 0),
+            effects: [DamageTarget(1), MoveSourceIfTargetRemoved],
+        ),
+    ],
+    abilities: [(id: "sidestep", display_name: "Sidestep", target: (origin: Source, pattern: Step([N,E,S,W]), filters: [Empty], count: 1), cooldown: 2, effects: [MoveSource])],
+)

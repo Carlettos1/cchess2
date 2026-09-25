@@ -1,0 +1,6 @@
+(
+    schema_version: 1, id: "cancel_event", display_name: "Cancel Event",
+    kind: Utility, cost: (actions: 0, mana: 0),
+    target: FriendlyScheduled, effects: [CancelScheduledEvent],
+    
+)

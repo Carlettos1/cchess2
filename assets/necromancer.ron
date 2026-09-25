@@ -1,0 +1,6 @@
+(
+    schema_version: 1, id: "necromancer", display_name: "Necromancer", symbol: 'N',
+    tags: [Demonic], action_rules: [(kind: Move, target: (origin: Source, pattern: Ray(min: 1, max: Some(2), directions: [N,E,S,W]), filters: [Empty], count: 1), effects: [MoveSource])],
+    abilities: [(id: "revive", display_name: "Raise Undead", target: (origin: Source, pattern: TaxicabRange(3), filters: [Empty], count: 1), cost: (actions: 1, mana: 3), cooldown: 3, effects: [ReviveLatest(undead: true)])],
+    triggers: [(id: "demonic_mana", event: Removed, effects: [AddMana(1)])],
+)

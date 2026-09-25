@@ -1,0 +1,6 @@
+(
+    schema_version: 1,
+    id: "wall", display_name: "Wall", symbol: 'L',
+    tags: [Structure], base_stats: (impenetrable: 3),
+    action_rules: [],
+)

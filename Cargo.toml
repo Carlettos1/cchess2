@@ -1,0 +1,30 @@
+[workspace]
+members = ["core", "AI", "tui"]
+default-members = [".", "core", "AI", "tui"]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+
+[workspace.dependencies]
+cchess-core = { path = "core" }
+cchess-ai = { path = "AI" }
+cchess-tui = { path = "tui" }
+serde = { version = "1.0", features = ["derive"] }
+ron = "0.12"
+crossterm = "0.29"
+
+[package]
+name = "cchess-engine"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+cchess-core.workspace = true
+cchess-ai.workspace = true
+cchess-tui.workspace = true
+ron.workspace = true
+
+[dev-dependencies]
+crossterm.workspace = true

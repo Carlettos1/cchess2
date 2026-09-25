@@ -1,0 +1,6 @@
+(
+    schema_version: 1, id: "forced_march", display_name: "Forced March",
+    kind: Utility, cost: (actions: 0, mana: 1),
+    target: None, effects: [ModifyActions(2)],
+    
+)

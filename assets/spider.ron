@@ -1,0 +1,9 @@
+(
+    schema_version: 1,
+    id: "spider", display_name: "Spider", symbol: 'V',
+    tags: [Demonic, Biological], base_stats: (transportable: Some(3)),
+    action_rules: [(kind: Move, target: (origin: Source, pattern: SymmetricalLeap([(1,2)]), filters: [Empty], count: 1), effects: [MoveSource]),
+        (kind: Take, target: (origin: Source, pattern: SymmetricalLeap([(1,2)]), filters: [Enemy,Occupied], count: 1), effects: [DamageTarget(1),MoveSourceIfTargetRemoved])],
+    abilities: [(id: "lay_egg", display_name: "Lay egg", target: (origin: Source, pattern: SelfOnly, filters: [Friendly, Occupied], count: 1), cost: (actions: 1, mana: 1), cooldown: 3, effects: [SpawnRelative(archetype: "spider_egg", directions: [F])])],
+    triggers: [(id: "demonic_mana", event: Removed, effects: [AddMana(1)])],
+)

@@ -1,0 +1,7 @@
+(
+    schema_version: 1, id: "oni", display_name: "Oni", symbol: 'O',
+    tags: [Demonic,Biological], action_rules: [(kind: Move, target: (origin: Source, pattern: Any([Ray(min: 1, max: Some(5), directions: [N,E,S,W]),SymmetricalLeap([(1,2)])]), filters: [Empty], count: 1), effects: [MoveSource]),
+        (kind: Take, target: (origin: Source, pattern: Any([Ray(min: 1, max: Some(5), directions: [N,E,S,W]),SymmetricalLeap([(1,2)])]), filters: [Enemy,Occupied], count: 1), effects: [DamageTarget(1),MoveSourceIfTargetRemoved])],
+    abilities: [(id: "seek", display_name: "Seek Heroic", target: (origin: Source, pattern: FullStep, filters: [], count: 1), selection: Direction, cooldown: 2, effects: [SeekTag(Heroic)])],
+    triggers: [(id: "demonic_mana", event: Removed, effects: [AddMana(1)])],
+)

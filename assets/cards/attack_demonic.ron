@@ -1,0 +1,1 @@
+(schema_version: 1, id: "attack_demonic", display_name: "Attack Demonic", kind: OnBoard, cost: (actions: 0, mana: 3), target: None, effects: [])

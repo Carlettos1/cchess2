@@ -1,0 +1,6 @@
+(
+    schema_version: 1, id: "summon_wall", display_name: "Summon Wall",
+    kind: Summon, cost: (actions: 1, mana: 1),
+    target: Square((origin: AnyFriendlyPiece, pattern: FullStep, filters: [Empty], count: 1)), effects: [SpawnTarget("wall")],
+    
+)

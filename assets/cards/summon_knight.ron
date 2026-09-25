@@ -1,0 +1,6 @@
+(
+    schema_version: 1, id: "summon_knight", display_name: "Summon Knight",
+    kind: Summon, cost: (actions: 1, mana: 2),
+    target: Square((origin: AnyFriendlyPiece, pattern: FullStep, filters: [Empty], count: 1)), effects: [SpawnTarget("knight")],
+    
+)

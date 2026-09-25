@@ -1,0 +1,8 @@
+(
+    schema_version: 1,
+    id: "spider_egg", display_name: "Spider Egg", symbol: 'E',
+    tags: [Demonic, Biological], base_stats: (transportable: Some(1)),
+    action_rules: [],
+    abilities: [],
+    triggers: [(id: "demonic_mana", event: Removed, effects: [AddMana(1)]), (id: "hatch", event: Spawned, effects: [Schedule(after: 2, effects: [TransformSource("spider")])])],
+)

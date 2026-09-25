@@ -1,0 +1,8 @@
+(
+    schema_version: 1,
+    id: "mandragora", display_name: "Mandragora", symbol: 'D',
+    tags: [Demonic], base_stats: (transportable: Some(1)),
+    action_rules: [(kind: Move, target: (origin: Source, pattern: FullStep, filters: [Empty], count: 1), effects: [MoveSource])],
+    abilities: [(id: "harvest", display_name: "Delayed harvest", target: (origin: Source, pattern: SelfOnly, filters: [Friendly, Occupied], count: 1), cooldown: 3, effects: [Sequence([Schedule(after: 1, effects: [AddMana(1)]), Schedule(after: 2, effects: [AddMana(2)])])])],
+    triggers: [(id: "demonic_mana", event: Removed, effects: [AddMana(1)])],
+)

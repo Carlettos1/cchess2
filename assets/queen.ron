@@ -1,0 +1,25 @@
+(
+    schema_version: 1,
+    id: "queen",
+    display_name: "Queen",
+    symbol: 'Q',
+    tags: [Biological, Heroic],
+    base_stats: (),
+    action_rules: [
+        (
+            kind: Move,
+            target: (origin: Source, pattern: InfiniteRay([N, NE, E, SE, S, SW, W, NW]), filters: [Empty], count: 1),
+            conditions: [HasNotActed],
+            cost: (actions: 1, mana: 0),
+            effects: [MoveSource],
+        ),
+        (
+            kind: Take,
+            target: (origin: Source, pattern: InfiniteRay([N, NE, E, SE, S, SW, W, NW]), filters: [Enemy, Occupied], count: 1),
+            conditions: [HasNotActed],
+            cost: (actions: 1, mana: 0),
+            effects: [DamageTarget(1), MoveSourceIfTargetRemoved],
+        ),
+    ],
+    abilities: [(id: "leap", display_name: "Knight leap", target: (origin: Source, pattern: SymmetricalLeap([(1,2)]), filters: [Empty], count: 1), cooldown: 5, effects: [MoveSource])],
+)

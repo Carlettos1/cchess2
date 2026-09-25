@@ -1,0 +1,6 @@
+(
+    schema_version: 1, id: "ice", display_name: "Ice",
+    kind: OnBoard, cost: (actions: 0, mana: 2),
+    target: None, effects: [],
+    
+)

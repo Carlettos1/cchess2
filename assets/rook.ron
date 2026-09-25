@@ -1,0 +1,27 @@
+(
+    schema_version: 1,
+    id: "rook",
+    display_name: "Rook",
+    symbol: 'R',
+    tags: [Structure],
+    base_stats: (),
+    action_rules: [
+        (
+            kind: Move,
+            target: (origin: Source, pattern: InfiniteRay([N, E, S, W]), filters: [Empty], count: 1),
+            conditions: [HasNotActed],
+            cost: (actions: 1, mana: 0),
+            effects: [MoveSource],
+        ),
+        (
+            kind: Take,
+            target: (origin: Source, pattern: InfiniteRay([N, E, S, W]), filters: [Enemy, Occupied], count: 1),
+            conditions: [HasNotActed],
+            cost: (actions: 1, mana: 0),
+            effects: [DamageTarget(1), MoveSourceIfTargetRemoved],
+        ),
+    ],
+    abilities: [(id: "throw", display_name: "Throw rooks", selection: Direction,
+        target: (origin: Source, pattern: Step([N,E,S,W]), filters: [], count: 1),
+        cost: (actions: 1, mana: 0), effects: [AdvancePeers(halfside: 2)])],
+)

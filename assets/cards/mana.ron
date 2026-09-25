@@ -1,0 +1,6 @@
+(
+    schema_version: 1, id: "mana", display_name: "Mana",
+    kind: Utility, cost: (actions: 0, mana: 0),
+    target: None, effects: [AddMana(2)],
+    
+)

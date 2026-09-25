@@ -1,0 +1,1 @@
+(schema_version: 1, id: "revive", display_name: "Revive", kind: OnBoard, cost: (actions: 0, mana: 4), target: None, effects: [])

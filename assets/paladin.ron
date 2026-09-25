@@ -1,0 +1,14 @@
+(
+    schema_version: 1,
+    id: "paladin", display_name: "Paladin", symbol: 'L',
+    tags: [Biological, Heroic, Immune], base_stats: (transportable: Some(4)),
+    action_rules: [
+        (kind: Move, target: (origin: Source, pattern: InfiniteRay([N,NE,E,SE,S,SW,W,NW]), filters: [Empty], count: 1), effects: [MoveSource]),
+        (kind: Take, target: (origin: Source, pattern: InfiniteRay([N,NE,E,SE,S,SW,W,NW]), filters: [Enemy,Occupied], count: 1), effects: [DamageTarget(1), MoveSourceIfTargetRemoved]),
+    ],
+    abilities: [
+        (id: "ward", display_name: "Invulnerable ward", target: (origin: Source, pattern: AreaSquare(63), filters: [Friendly,Occupied], count: 1), conditions: [CardOnBoard("invulnerability")], consume_cards: ["invulnerability"], cost: (actions: 1, mana: 1), effects: [AddStatus(kind: Invulnerable, duration: 5)]),
+        (id: "smite", display_name: "Smite Demonic", target: (origin: Source, pattern: AreaSquare(63), filters: [Enemy,Occupied,HasTag(Demonic)], count: 1), conditions: [CardOnBoard("attack_demonic")], consume_cards: ["attack_demonic"], cost: (actions: 1, mana: 1), effects: [DamageTarget(1)]),
+        (id: "revive", display_name: "Revive fallen ally", target: (origin: Source, pattern: AreaSquare(63), filters: [Empty], count: 1), conditions: [CardOnBoard("revive")], consume_cards: ["revive"], cost: (actions: 1, mana: 1), effects: [ReviveLatest(undead: false)]),
+    ],
+)

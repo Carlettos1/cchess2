@@ -1,0 +1,25 @@
+(
+    schema_version: 1,
+    id: "king",
+    display_name: "King",
+    symbol: 'K',
+    tags: [Biological, Heroic, Immune, Royal],
+    base_stats: (),
+    action_rules: [
+        (
+            kind: Move,
+            target: (origin: Source, pattern: FullStep, filters: [Empty], count: 1),
+            conditions: [HasNotActed],
+            cost: (actions: 1, mana: 0),
+            effects: [MoveSource],
+        ),
+        (
+            kind: Take,
+            target: (origin: Source, pattern: FullStep, filters: [Enemy, Occupied], count: 1),
+            conditions: [HasNotActed],
+            cost: (actions: 1, mana: 0),
+            effects: [DamageTarget(1), MoveSourceIfTargetRemoved],
+        ),
+    ],
+    abilities: [(id: "teleport", display_name: "Royal teleport", target: (origin: Source, pattern: AreaSquare(5), filters: [Empty], count: 1), cost: (actions: 1, mana: 2), once: true, effects: [MoveSource])],
+)

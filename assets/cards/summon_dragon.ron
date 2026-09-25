@@ -1,0 +1,6 @@
+(
+    schema_version: 1, id: "summon_dragon", display_name: "Summon Dragon",
+    kind: Summon, cost: (actions: 1, mana: 6),
+    target: Square((origin: AnyFriendlyPiece, pattern: FullStep, filters: [Empty], count: 1)),
+    effects: [SpawnTarget("dragon")],
+)

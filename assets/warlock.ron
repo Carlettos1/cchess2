@@ -1,0 +1,8 @@
+(
+    schema_version: 1,
+    id: "warlock", display_name: "Warlock", symbol: 'W',
+    tags: [Demonic, Immune], base_stats: (transportable: Some(5)),
+    action_rules: [(kind: Move, target: (origin: Source, pattern: Ray(min: 1, max: Some(2), directions: [NE,SE,SW,NW]), filters: [Empty], count: 1), effects: [MoveSource])],
+    abilities: [(id: "portals", display_name: "Portals", target: (origin: Source, pattern: FullStep, filters: [Empty, Magic, Buildable], count: 1), effects: [SpawnTarget("portal")], selection: All, cost: (actions: 1, mana: 3), cooldown: 5)],
+    triggers: [(id: "demonic_mana", event: Removed, effects: [AddMana(1)])]
+)

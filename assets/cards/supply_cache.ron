@@ -1,0 +1,6 @@
+(
+    schema_version: 1, id: "supply_cache", display_name: "Supply Cache",
+    kind: Utility, cost: (actions: 0, mana: 1),
+    target: None, effects: [ScheduleOn(clock: OwnerTurns, after: 2, effects: [DrawCard(2)])],
+    
+)

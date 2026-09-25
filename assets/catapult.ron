@@ -1,0 +1,13 @@
+(
+    schema_version: 1,
+    id: "catapult", display_name: "Catapult", symbol: 'C',
+    tags: [Structure], base_stats: (strength: 3),
+    action_rules: [
+        (kind: Move, target: (origin: Source, pattern: Step([N,E,S,W]), filters: [Empty], count: 1), effects: [MoveSource]),
+    ],
+    abilities: [
+        (id: "launch", display_name: "Launch", selection: Transport,
+         target: (origin: Source, pattern: FullStep, filters: [Occupied,Transportable], count: 1),
+         cooldown: 2, effects: [Transport(max_range: 3, collision_damage: 1)]),
+    ],
+)

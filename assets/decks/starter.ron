@@ -1,0 +1,6 @@
+(schema_version: 1, id: "starter", cards: [
+    "lasting_momentum", "summon_knight", "forced_march", "fire", "ice", "insight", "mana",
+    "summon_wall", "second_wind", "event_haste", "supply_cache", "blood_pact",
+    "royal_decree", "more_mana", "invulnerability", "dispel", "cancel_event",
+    "summon_dragon", "summon_wall", "attack_demonic", "revive",
+])

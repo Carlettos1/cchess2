@@ -1,0 +1,6 @@
+(
+    schema_version: 1, id: "second_wind", display_name: "Second Wind",
+    kind: Utility, cost: (actions: 0, mana: 1),
+    target: Square((origin: Board, pattern: SelfOnly, filters: [Friendly,Occupied,HasActed], count: 1)), effects: [ResetAction],
+    
+)

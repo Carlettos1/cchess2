@@ -1,0 +1,11 @@
+(
+    schema_version: 1,
+    id: "basilisk", display_name: "Basilisk", symbol: 'B',
+    tags: [Demonic], base_stats: (),
+    action_rules: [
+        (kind: Move, target: (origin: Source, pattern: InfiniteRay([NE,SE,SW,NW]), filters: [Empty], count: 1), effects: [MoveSource]),
+        (kind: Take, target: (origin: Source, pattern: InfiniteRay([NE,SE,SW,NW]), filters: [Enemy,Occupied], count: 1), effects: [DamageTarget(1),MoveSourceIfTargetRemoved]),
+    ],
+    abilities: [(id: "gaze", display_name: "Petrifying gaze", target: (origin: Source, pattern: Ray(min: 3, max: Some(10), directions: [N,E,S,W]), filters: [Enemy,Occupied], count: 1), selection: All, cooldown: 3, effects: [AddStatus(kind: Deactivate, duration: 3)])],
+    triggers: [(id: "demonic_mana", event: Removed, effects: [AddMana(1)])],
+)

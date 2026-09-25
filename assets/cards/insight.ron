@@ -1,0 +1,6 @@
+(
+    schema_version: 1, id: "insight", display_name: "Insight",
+    kind: Utility, cost: (actions: 0, mana: 1),
+    target: None, effects: [DrawCard(2)],
+    
+)

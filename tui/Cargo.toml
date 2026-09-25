@@ -1,0 +1,9 @@
+[package]
+name = "cchess-tui"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+cchess-core.workspace = true
+cchess-ai.workspace = true
+crossterm.workspace = true

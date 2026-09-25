@@ -1,0 +1,8 @@
+(
+    schema_version: 1,
+    id: "cannon", display_name: "Cannon", symbol: 'C',
+    tags: [Structure], base_stats: (),
+    action_rules: [(kind: Move, target: (origin: Source, pattern: Step([N,E,S,W]), filters: [Empty], count: 1), effects: [MoveSource]),
+        (kind: Attack, target: (origin: Source, pattern: AreaSquare(5), filters: [Enemy, Occupied], count: 1), effects: [DamageTarget(1)])],
+    abilities: []
+)

@@ -1,0 +1,18 @@
+(
+    schema_version: 1,
+    id: "portal", display_name: "Portal", symbol: 'P',
+    tags: [Demonic], base_stats: (),
+    action_rules: [],
+    abilities: [(id: "summon_oni", display_name: "Summon Oni", target: (origin: Source, pattern: FullStep, filters: [Empty,Buildable], count: 1), conditions: [NoPendingWork], effects: [Schedule(after: 4, effects: [SpawnTarget("oni")])]),
+        (id: "summon_necromancer", display_name: "Summon Necromancer", target: (origin: Source, pattern: FullStep, filters: [Empty,Buildable], count: 1), conditions: [NoPendingWork], effects: [Schedule(after: 4, effects: [SpawnTarget("necromancer")])]),
+        (id: "summon_golem", display_name: "Summon Golem", target: (origin: Source, pattern: FullStep, filters: [Empty,Buildable], count: 1), conditions: [NoPendingWork], effects: [Schedule(after: 4, effects: [SpawnTarget("golem")])]),
+        (id: "summon_ogre", display_name: "Summon Ogre", target: (origin: Source, pattern: FullStep, filters: [Empty,Buildable], count: 1), conditions: [NoPendingWork], effects: [Schedule(after: 3, effects: [SpawnTarget("ogre")])]),
+        (id: "summon_basilisk", display_name: "Summon Basilisk", target: (origin: Source, pattern: FullStep, filters: [Empty,Buildable], count: 1), conditions: [NoPendingWork], effects: [Schedule(after: 3, effects: [SpawnTarget("basilisk")])]),
+        (id: "summon_gargoyle", display_name: "Summon Gargoyle", target: (origin: Source, pattern: FullStep, filters: [Empty,Buildable], count: 1), conditions: [NoPendingWork], effects: [Schedule(after: 3, effects: [SpawnTarget("gargoyle")])]),
+        (id: "summon_mermaid", display_name: "Summon Mermaid", target: (origin: Source, pattern: FullStep, filters: [Empty,Buildable], count: 1), conditions: [NoPendingWork], effects: [Schedule(after: 2, effects: [SpawnTarget("mermaid")])]),
+        (id: "summon_imp", display_name: "Summon Imp", target: (origin: Source, pattern: FullStep, filters: [Empty, Buildable], count: 1), effects: [Schedule(after: 1, effects: [SpawnTarget("imp")])], conditions: [NoPendingWork]),
+        (id: "summon_succubus", display_name: "Summon Succubus", target: (origin: Source, pattern: FullStep, filters: [Empty, Buildable], count: 1), effects: [Schedule(after: 2, effects: [SpawnTarget("succubus")])], conditions: [NoPendingWork]),
+        (id: "summon_witch", display_name: "Summon Witch", target: (origin: Source, pattern: FullStep, filters: [Empty, Buildable], count: 1), effects: [Schedule(after: 3, effects: [SpawnTarget("witch")])], conditions: [NoPendingWork]),
+        (id: "summon_mandragora", display_name: "Summon Mandragora", target: (origin: Source, pattern: FullStep, filters: [Empty, Buildable], count: 1), effects: [Schedule(after: 1, effects: [SpawnTarget("mandragora")])], conditions: [NoPendingWork])],
+    triggers: [(id: "demonic_mana", event: Removed, effects: [AddMana(1)])]
+)

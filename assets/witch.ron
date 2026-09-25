@@ -1,0 +1,9 @@
+(
+    schema_version: 1,
+    id: "witch", display_name: "Witch", symbol: 'W',
+    tags: [Demonic], base_stats: (),
+    action_rules: [(kind: Move, target: (origin: Source, pattern: Any([Ray(min: 1, max: Some(5), directions: [N,E,S,W]), FullStep]), filters: [Empty], count: 1), effects: [MoveSource]),
+        (kind: Take, target: (origin: Source, pattern: Any([Ray(min: 1, max: Some(5), directions: [N,E,S,W]), FullStep]), filters: [Enemy,Occupied], count: 1), effects: [DamageTarget(1),MoveSourceIfTargetRemoved])],
+    abilities: [(id: "burst", display_name: "Adjacent damage", target: (origin: Source, pattern: FullStep, filters: [Occupied], count: 1), selection: All, cost: (actions: 1, mana: 1), cooldown: 2, effects: [DamageTarget(1)])],
+    triggers: [(id: "demonic_mana", event: Removed, effects: [AddMana(1)])],
+)

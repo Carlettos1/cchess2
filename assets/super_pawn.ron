@@ -1,0 +1,10 @@
+(
+    schema_version: 1,
+    id: "super_pawn", display_name: "Super Pawn", symbol: 'U',
+    tags: [Biological, Immune], base_stats: (transportable: Some(2)),
+    action_rules: [
+        (kind: Move, target: (origin: Source, pattern: RelativeRay(min: 1, max: Some(2), directions: [F,FL,FR]), filters: [Empty], count: 1), effects: [MoveSource]),
+        (kind: Take, target: (origin: Source, pattern: RelativeStep([F,FL,FR]), filters: [Enemy,Occupied], count: 1), effects: [DamageTarget(1), MoveSourceIfTargetRemoved]),
+    ],
+    abilities: [(id: "cleanse", display_name: "Cleanse", target: (origin: Source, pattern: AreaSquare(2), filters: [Friendly,Occupied], count: 1), cooldown: 2, effects: [RemoveStatuses])],
+)

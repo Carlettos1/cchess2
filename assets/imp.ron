@@ -1,0 +1,14 @@
+(
+    schema_version: 1,
+    id: "imp", display_name: "Imp", symbol: 'I',
+    tags: [Demonic], base_stats: (transportable: Some(1)),
+    action_rules: [
+        (kind: Move, target: (origin: Source, pattern: SymmetricalLeap([(1,2)]), filters: [Empty], count: 1), effects: [MoveSource]),
+    ],
+    abilities: [
+        (id: "draw", display_name: "Draw a card",
+         target: (origin: Source, pattern: SelfOnly, filters: [Friendly,Occupied], count: 1),
+         cooldown: 1, effects: [DrawCard(1)]),
+    ],
+    triggers: [(id: "demonic_mana", event: Removed, effects: [AddMana(1)])],
+)
