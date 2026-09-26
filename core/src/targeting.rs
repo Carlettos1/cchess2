@@ -4,7 +4,6 @@ use crate::{
     state::{EntityId, Game, PieceInstance, PlayerId},
 };
 use serde::{Deserialize, Serialize};
-use std::collections::BTreeSet;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum TargetOrigin {
@@ -64,7 +63,7 @@ pub fn resolve(
         TargetOrigin::Fixed(p) => vec![*p],
         TargetOrigin::Board => game.bounds().positions().collect(),
     };
-    origins
+    let mut targets: Vec<_> = origins
         .into_iter()
         .flat_map(|origin| {
             spec.pattern.targets_on_board(
@@ -82,9 +81,10 @@ pub fn resolve(
                 .iter()
                 .all(|f| matches_filter(game, piece, *pos, owner, f))
         })
-        .collect::<BTreeSet<_>>()
-        .into_iter()
-        .collect()
+        .collect();
+    targets.sort_unstable();
+    targets.dedup();
+    targets
 }
 fn matches_filter(
     game: &Game,

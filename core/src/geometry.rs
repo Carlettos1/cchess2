@@ -310,7 +310,7 @@ impl RuntimePattern {
         if !bounds.contains(origin) || !playable(origin) {
             return Vec::new();
         }
-        let mut result = BTreeSet::new();
+        let mut result = Vec::new();
         match self {
             Self::Any(patterns) => {
                 for pattern in patterns {
@@ -319,7 +319,7 @@ impl RuntimePattern {
                 }
             }
             Self::SelfOnly => {
-                result.insert(origin);
+                result.push(origin);
             }
             Self::Leap(offsets) => {
                 for &(dx, dy) in offsets {
@@ -327,7 +327,7 @@ impl RuntimePattern {
                         .offset(dx, dy)
                         .filter(|p| bounds.contains(*p) && playable(*p))
                     {
-                        result.insert(p);
+                        result.push(p);
                     }
                 }
             }
@@ -338,7 +338,7 @@ impl RuntimePattern {
                 relative,
             } => {
                 if *min == 0 {
-                    result.insert(origin);
+                    result.push(origin);
                 }
                 for &v in vectors {
                     let (dx, dy) = if *relative { forward.rotate(v) } else { v };
@@ -351,7 +351,7 @@ impl RuntimePattern {
                             break;
                         };
                         if distance >= i32::from(*min) {
-                            result.insert(p);
+                            result.push(p);
                         }
                         if occupied(p) {
                             break;
@@ -368,18 +368,29 @@ impl RuntimePattern {
                 {
                     p = next;
                 }
-                result.insert(p);
+                result.push(p);
             }
             Self::Range { distance, taxicab } => {
-                for p in bounds.positions().filter(|p| playable(*p)) {
+                // A local range need not scan the entire (up to 64x64) board.
+                let radius = i32::from(*distance);
+                let xs = (origin.x - radius).max(0)
+                    ..=(origin.x + radius).min(i32::from(bounds.width) - 1);
+                let ys = (origin.y - radius).max(0)
+                    ..=(origin.y + radius).min(i32::from(bounds.height) - 1);
+                for p in xs
+                    .flat_map(|x| ys.clone().map(move |y| Pos::new(x, y)))
+                    .filter(|p| playable(*p))
+                {
                     let dx = (p.x - origin.x).abs();
                     let dy = (p.y - origin.y).abs();
                     if (if *taxicab { dx + dy } else { dx.max(dy) }) <= i32::from(*distance) {
-                        result.insert(p);
+                        result.push(p);
                     }
                 }
             }
         }
-        result.into_iter().collect()
+        result.sort_unstable();
+        result.dedup();
+        result
     }
 }

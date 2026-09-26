@@ -1,6 +1,6 @@
 # Basic AI opponents
 
-Three policies share the normal legal-action generator, validation and
+Four policies share the normal legal-action generator, validation and
 resolver. Random and First have no evaluation function or search. Heuristic adds
 one-action lookahead; none of the policies coordinates teams. Four-player matches remain FFA regardless of seat types.
 
@@ -21,8 +21,16 @@ one-action lookahead; none of the policies coordinates teams. Four-player matche
   ending the turn when legal, even if other actions remain. Equal scores retain
   candidate order; the live game and its RNG are never changed by selection.
 
+- **Mcts:** seeded Monte Carlo tree search with UCT selection, progressive
+  widening, tactical rollout ordering, and a heuristic cutoff evaluation. The
+  default budget is 128 iterations and up to 8 rollout actions per iteration.
+  Each node selects for its actual acting seat, including extra-action turns
+  and four-player FFA. Search and simulation run on the caller's single thread.
+  See [MCTS implementation and benchmarks](MCTS.md).
+
 ```sh
 cargo run -- --ai heuristic
+cargo run --release -- --ai mcts
 cargo run -- --four-player --players human,heuristic,heuristic,heuristic
 ```
 
@@ -33,8 +41,8 @@ multi-action combinations or model every future ability/scheduled effect.
 Threat scoring estimates pressure, not guaranteed damage or a forced capture.
 It scores card counts rather than opponent card identities, but simulations use
 the actual engine state and RNG, so this is not an information-safe policy for
-competitive hidden-hand play. Cloning and resolving every action is more
-expensive than First/Random, particularly on full boards and long histories.
+competitive hidden-hand play. Simulation copies omit committed history, but resolving every candidate is
+still more expensive than First/Random, particularly on full boards.
 
 All policies re-evaluate the board after every action, continuing through zero-action
 cards and extra movement budgets until the turn transfers or the game ends.
@@ -64,7 +72,7 @@ cargo run --manifest-path Cargo.toml -- --players first,human --ai-seed 123
 ```
 
 `--players` takes one comma-separated controller per seat in roster order:
-`human`, `random`, `first`, or `heuristic`. Unconfigured games remain human-controlled.
+`human`, `random`, `first`, `heuristic`, or `mcts`. Unconfigured games remain human-controlled.
 `--ai` assigns all seats except seat 0 to the named policy. Use either `--ai`
 or `--players`. The seed defaults to 42. These options also work with demos;
 `--print` prints setup without running AI.
@@ -93,9 +101,13 @@ change the deck/Crazy Pawn RNG. Ordinary logged intents replay through
 
 ## Quiet automated games and action logs
 
-Run every seat as Random AI, without prompts or intermediate board output:
+Run every seat as AI, without prompts or intermediate board output. The default
+is Random; `--ai POLICY` sets every seat, and `--players` permits mixed AI seats:
 
 ```sh
+# MCTS, classical board; omit the action limit for an unbounded match.
+cargo run --release -- --auto-play mcts.txt --ai mcts --max-actions 1000
+
 # Two players, classical board
 cargo run --manifest-path Cargo.toml -- --auto-play game-2p.txt
 # Four players, cross-shaped FFA board
@@ -123,6 +135,8 @@ does not invent a winner or a draw. Without that option there is no action limit
 random games are not guaranteed to terminate. Engine errors also preserve the
 recorded actions and produce an unfinished result.
 
-This mode supports all board presets. It cannot be combined with `--ai`,
-`--players`, `--tui`, `--print` or asset/deck validation because it configures all
-seats and runs the game itself. `--cli` is accepted but unnecessary.
+This mode supports all board presets. `--players` must assign an AI to every
+seat; human seats are rejected. `--ai` and `--players` are mutually exclusive.
+It cannot be combined with `--tui`, `--print` or asset/deck validation. `--cli`
+is accepted but unnecessary. Stderr reports auto-play elapsed time, total AI
+selection time, milliseconds per action, and actions per second.

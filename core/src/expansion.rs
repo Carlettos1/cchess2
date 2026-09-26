@@ -5,7 +5,7 @@ use std::collections::BTreeSet;
 impl Game {
     /// Set the match seed before play. Deck setup also sets the shared RNG seed.
     pub fn with_seed(mut self, seed: u64) -> Result<Self, String> {
-        if !self.log().is_empty() {
+        if self.action_count() != 0 {
             return Err("seed must be set before play".into());
         }
         self.state.rng = MatchRng::new(seed);
@@ -14,7 +14,7 @@ impl Game {
 
     /// Ordinary squares are buildable; magic must be explicitly marked at setup.
     pub fn with_terrain(mut self, magic: Vec<Pos>, unbuildable: Vec<Pos>) -> Result<Self, String> {
-        if !self.log().is_empty()
+        if self.action_count() != 0
             || magic
                 .iter()
                 .chain(&unbuildable)

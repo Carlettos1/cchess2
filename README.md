@@ -13,7 +13,7 @@ all members. Use `cargo check -p cchess-core`, `cargo check -p cchess-ai`, or
 remain in `assets/`. Clients using AI methods such as `choose_ai_action` must
 import `cchess_ai::GameAi` (or `cchess_engine::GameAi` through the facade).
 
-[Basic AI opponents and mixed human/AI seats](AI.md) support Random and First policies.
+[AI opponents and mixed human/AI seats](AI.md) support Random, First, Heuristic, and single-threaded MCTS policies.
 
 [Single-threaded optimization plan and measured auto-play baseline](OPTIMIZATION.md).
 

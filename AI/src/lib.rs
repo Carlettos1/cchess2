@@ -4,6 +4,7 @@ use cchess_core::{cards::MatchRng, ActionIntent, ActionKind, Game, ResolvedActio
 use std::collections::BTreeSet;
 
 pub mod heuristic;
+pub mod mcts;
 
 /// AI action selection and execution for a game. Import this trait to use its methods.
 pub trait GameAi {
@@ -50,6 +51,7 @@ impl GameAi for Game {
         match controller.policy {
             AiPolicy::First => first_ai_action(self),
             AiPolicy::Heuristic => heuristic::choose_action(self),
+            AiPolicy::Mcts => mcts::search(self, mcts::SearchConfig::default()).action,
             AiPolicy::Random => {
                 let actions = self.ai_legal_actions();
                 if actions.is_empty() {
@@ -58,7 +60,7 @@ impl GameAi for Game {
                 let mut rng = MatchRng::new(
                     controller
                         .seed
-                        .wrapping_add((self.log().len() as u64).wrapping_mul(0xd1342543de82ef95)),
+                        .wrapping_add(self.action_count().wrapping_mul(0xd1342543de82ef95)),
                 );
                 Some(actions[rng.below(actions.len() as u64)].clone())
             }

@@ -30,3 +30,5 @@ pub mod mana;
 pub mod ai;
 
 pub mod full_board;
+
+pub mod simulation;

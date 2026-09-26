@@ -1,5 +1,9 @@
 # Single-threaded optimization plan
 
+For the new MCTS policy, simulation-state optimizations, and current release
+timings, see [MCTS implementation and benchmarks](MCTS.md). The Random-policy
+measurements below are historical and refer to a different workload.
+
 The prioritized optimizations are now implemented. Selection, resolution and logging
 still run on one thread. Rules, deterministic ordering, atomic rollback, snapshot
 format and complete readable logs are preserved.

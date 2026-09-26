@@ -681,7 +681,7 @@ impl Game {
         draw_per_turn: u32,
         shuffle: bool,
     ) -> Result<Self, String> {
-        if !self.log().is_empty()
+        if self.action_count() != 0
             || decks.len() != self.state.players.len()
             || opening_hand > 256
             || draw_per_turn > 256

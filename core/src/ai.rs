@@ -8,6 +8,7 @@ pub enum AiPolicy {
     Random,
     First,
     Heuristic,
+    Mcts,
 }
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct AiController {
@@ -18,7 +19,7 @@ pub struct AiController {
 impl Game {
     /// Unlisted seats remain human-controlled. Configure before the first action.
     pub fn with_ai(mut self, seats: Vec<(PlayerId, AiPolicy)>, seed: u64) -> Result<Self, String> {
-        if !self.log().is_empty() {
+        if self.action_count() != 0 {
             return Err("configure AI seats before play".into());
         }
         let mut controllers = BTreeMap::new();

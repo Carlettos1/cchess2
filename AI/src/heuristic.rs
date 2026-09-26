@@ -12,7 +12,7 @@ use std::collections::BTreeSet;
 const WIN: i64 = 1_000_000_000;
 
 /// Choose the highest-scoring successfully resolved action, preserving generator
-/// order on ties. Only this policy considers an early, legal end of turn.
+/// order on ties. An early, legal end of turn is also considered.
 /// The live game (including its history and random stream) is never modified.
 pub fn choose_action(game: &Game) -> Option<ActionIntent> {
     if game.is_over() {
@@ -30,7 +30,7 @@ pub fn choose_action(game: &Game) -> Option<ActionIntent> {
     let mut best = None;
     let mut best_score = i64::MIN;
     for action in actions {
-        let mut next = game.clone();
+        let mut next = game.simulation();
         if next.apply(action.clone()).is_err() {
             continue;
         }
@@ -47,29 +47,53 @@ pub fn choose_action(game: &Game) -> Option<ActionIntent> {
 /// negatively; this is a simple material objective, not a coalition model.
 /// Terminal outcomes dominate every nonterminal score.
 pub fn evaluate(game: &Game, player: PlayerId) -> i64 {
-    if let Some(winner) = game.winner() {
-        return if winner == player { WIN } else { -WIN };
-    }
-    if game.is_eliminated(player) || game.player(player).is_none() {
+    let Some(seat) = game.players().iter().position(|p| p.id == player) else {
         return -WIN;
+    };
+    evaluate_all(game)[seat]
+}
+
+/// Scores in roster order, sharing material and threat calculation across seats.
+/// Useful for multiplayer search, where every leaf needs every seat's reward.
+pub fn evaluate_all(game: &Game) -> Vec<i64> {
+    if game.is_over() {
+        return game
+            .players()
+            .iter()
+            .map(|p| {
+                if let Some(winner) = game.winner() {
+                    if winner == p.id {
+                        WIN
+                    } else {
+                        -WIN
+                    }
+                } else if game.is_eliminated(p.id) {
+                    -WIN
+                } else {
+                    0
+                }
+            })
+            .collect();
     }
-    if game.is_draw() {
-        return 0;
-    }
-    let mut score = 0;
+    let seats = game.players();
+    let mut values = vec![0_i64; seats.len()];
     for piece in game.pieces() {
-        let sign = if piece.owner == player { 1 } else { -1 };
-        score += sign * (piece_value(game, piece) + position_value(game, piece));
+        let seat = seats.iter().position(|p| p.id == piece.owner).unwrap();
+        values[seat] += piece_value(game, piece) + position_value(game, piece);
     }
-    for seat in game.players().iter().filter(|p| !game.is_eliminated(p.id)) {
-        let sign = if seat.id == player { 1 } else { -1 };
+    for (seat, player) in seats
+        .iter()
+        .enumerate()
+        .filter(|(_, p)| !game.is_eliminated(p.id))
+    {
         // Cap mana so stockpiles cannot outweigh survival or material indefinitely.
-        let mana = i64::from(seat.mana.as_u32().unwrap_or(u32::MAX).min(100));
-        score += sign
-            * (mana * 5
-                + seat.cards.hand.len() as i64 * 20
-                + seat.cards.on_board.len() as i64 * 35);
+        let mana = i64::from(player.mana.as_u32().unwrap_or(u32::MAX).min(100));
+        values[seat] += mana * 5
+            + player.cards.hand.len() as i64 * 20
+            + player.cards.on_board.len() as i64 * 35;
     }
+    let total: i64 = values.iter().sum();
+    let mut scores: Vec<_> = values.iter().map(|v| 2 * v - total).collect();
     // Legal ordinary captures by the current actor are immediate pressure.
     // Deduplicate targets; multiple attackers do not multiply a victim's value.
     // This intentionally does not estimate future turns or ability combinations.
@@ -90,14 +114,23 @@ pub fn evaluate(game: &Game, player: PlayerId) -> i64 {
     for id in threatened {
         let victim = game.piece(id).unwrap();
         let penalty = piece_value(game, victim) * 3 / 4;
-        // Enemy-on-enemy pressure is not credited to this seat in FFA.
-        if victim.owner == player {
-            score -= penalty;
-        } else if game.turn().player == player {
-            score += penalty;
+        for (seat, player) in seats.iter().enumerate() {
+            // Enemy-on-enemy pressure is not credited to this seat in FFA.
+            if victim.owner == player.id {
+                scores[seat] -= penalty;
+            } else if game.turn().player == player.id {
+                scores[seat] += penalty;
+            }
         }
     }
-    score.clamp(-WIN + 1, WIN - 1)
+    for (score, player) in scores.iter_mut().zip(seats) {
+        *score = if game.is_eliminated(player.id) {
+            -WIN
+        } else {
+            (*score).clamp(-WIN + 1, WIN - 1)
+        };
+    }
+    scores
 }
 
 fn piece_value(game: &Game, piece: &PieceInstance) -> i64 {

@@ -1,0 +1,94 @@
+{
+  "date": "2026-09-25",
+  "cpu": "AMD Ryzen 7 5700G",
+  "rustc": "1.98.0-nightly (4c9d2bfe4 2026-07-01)",
+  "profile": "release",
+  "seed": 42,
+  "iterations": 128,
+  "rollout_depth": 8,
+  "repetitions": 3,
+  "log_filesystem": "/tmp (tmpfs)",
+  "baseline": "First MCTS implementation in this task, before simulation, evaluation and move-generation optimizations",
+  "baseline_binary_sha256": "0e25f0bb46c4fe0d6824a8c9266c1441a34758bd38d66385e325b8ef77a02dd7",
+  "optimized_binary_sha256": "e0d87bab53fd5c538a792c413a2939323cd79de9606bcec114c6f90b70dac789",
+  "cases": [
+    {
+      "case": "classical",
+      "actions": 40,
+      "status": "COMPLETED",
+      "baseline_seconds": [
+        2.55329,
+        2.583204,
+        2.544883
+      ],
+      "optimized_seconds": [
+        2.103615,
+        2.123631,
+        2.125876
+      ],
+      "baseline_median_seconds": 2.55329,
+      "optimized_median_seconds": 2.123631,
+      "elapsed_reduction_percent": 16.827661566057905,
+      "optimized_ms_per_action": 53.090774999999994,
+      "optimized_cargo_wall_seconds": [
+        2.200574120000965,
+        2.1631936769990716,
+        2.1675542800003313
+      ],
+      "sha256": "5279548ec62a0b6ec1f7257fed5d56808bdf7976ae349f95d7d62ab11abe5414",
+      "engine_threads_observed": 1
+    },
+    {
+      "case": "full",
+      "actions": 20,
+      "status": "UNFINISHED: action limit reached (20); game unfinished",
+      "baseline_seconds": [
+        5.668719,
+        5.572634,
+        5.650832
+      ],
+      "optimized_seconds": [
+        4.35061,
+        4.336408,
+        4.351432
+      ],
+      "baseline_median_seconds": 5.650832,
+      "optimized_median_seconds": 4.35061,
+      "elapsed_reduction_percent": 23.009390475597236,
+      "optimized_ms_per_action": 217.5305,
+      "optimized_cargo_wall_seconds": [
+        4.393469286000254,
+        4.375681960000293,
+        4.399721583000428
+      ],
+      "sha256": "f561e39e21ed018c641fe24de297aa05524b8ab205af5b848b47dd2f0a3135f1",
+      "engine_threads_observed": 1
+    },
+    {
+      "case": "four",
+      "actions": 20,
+      "status": "UNFINISHED: action limit reached (20); game unfinished",
+      "baseline_seconds": [
+        2.496459,
+        2.513489,
+        2.468737
+      ],
+      "optimized_seconds": [
+        2.041691,
+        2.054141,
+        2.024336
+      ],
+      "baseline_median_seconds": 2.496459,
+      "optimized_median_seconds": 2.041691,
+      "elapsed_reduction_percent": 18.216521881593085,
+      "optimized_ms_per_action": 102.08455000000001,
+      "optimized_cargo_wall_seconds": [
+        2.0800842250009737,
+        2.096113785999478,
+        2.064565100999971
+      ],
+      "sha256": "08e6fd813175442f4c2596d53bed5898ddfd38233a032b3d103507ea86227b17",
+      "engine_threads_observed": 1
+    }
+  ]
+}

@@ -234,3 +234,41 @@ fn all_patterns_produce_sorted_unique_bounded_targets_on_edges_and_blockers() {
         }
     }
 }
+
+#[test]
+fn bounded_range_enumeration_matches_full_board_reference_with_masks() {
+    let bounds = Bounds {
+        width: 64,
+        height: 64,
+    };
+    let playable = |p: Pos| !(p.x < 4 && p.y < 4);
+    for origin in [
+        Pos::new(0, 1),
+        Pos::new(4, 4),
+        Pos::new(32, 31),
+        Pos::new(63, 62),
+    ] {
+        for distance in [0, 1, 4, 64, u16::MAX] {
+            for taxicab in [false, true] {
+                let actual = RuntimePattern::Range { distance, taxicab }.targets_on_board(
+                    bounds,
+                    origin,
+                    Direction::N,
+                    |_| false,
+                    playable,
+                );
+                let expected: Vec<_> = bounds
+                    .positions()
+                    .filter(|&p| {
+                        let dx = (p.x - origin.x).abs();
+                        let dy = (p.y - origin.y).abs();
+                        playable(origin)
+                            && playable(p)
+                            && (if taxicab { dx + dy } else { dx.max(dy) }) <= i32::from(distance)
+                    })
+                    .collect();
+                assert_eq!(actual, expected);
+            }
+        }
+    }
+}

@@ -232,6 +232,8 @@ impl Snapshot {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Game {
+    // Simulation-only counter; live games derive action IDs from their complete log.
+    pub(crate) simulation_actions: Option<u64>,
     pub(crate) registry: Arc<Registry>,
     pub(crate) state: Snapshot,
     pub(crate) resolver: crate::events::Resolver,
@@ -329,6 +331,7 @@ impl Game {
             .map(|p| (p.id, u64::from(p.id == turn.player)))
             .collect();
         let mut game = Self {
+            simulation_actions: None,
             registry: Arc::new(registry),
             occupancy: vec![None; usize::from(bounds.width) * usize::from(bounds.height)],
             resolver: Default::default(),

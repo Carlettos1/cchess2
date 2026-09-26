@@ -464,7 +464,7 @@ fn automated_action_limit_preserves_log_without_claiming_a_finished_game() {
         vec!["--auto-play"],
         vec!["--max-actions", "1"],
         vec!["--auto-play", "unused.txt", "--tui"],
-        vec!["--auto-play", "unused.txt", "--ai", "first"],
+        vec!["--auto-play", "unused.txt", "--players", "human,mcts"],
     ] {
         assert!(!Command::new(env!("CARGO_BIN_EXE_cchess-engine"))
             .args(args)
@@ -490,5 +490,36 @@ fn heuristic_policy_is_accepted_in_both_cli_forms() {
             "{}",
             String::from_utf8_lossy(&output.stderr)
         );
+    }
+}
+
+#[test]
+fn automated_mcts_and_mixed_policies_log_real_controllers_and_timing() {
+    for (label, flags) in [
+        ("mcts", vec!["--ai", "mcts"]),
+        ("mixed", vec!["--players", "mcts,first"]),
+    ] {
+        let path =
+            std::env::temp_dir().join(format!("cchess-auto-{label}-{}.txt", std::process::id()));
+        let output = Command::new(env!("CARGO_BIN_EXE_cchess-engine"))
+            .arg("--auto-play")
+            .arg(&path)
+            .args(flags)
+            .args(["--max-actions", "2"])
+            .output()
+            .unwrap();
+        assert!(!output.status.success()); // Bounded run is explicitly unfinished.
+        let log = std::fs::read_to_string(&path).unwrap();
+        assert!(log.contains("Seats: 0=Mcts"));
+        assert!(!log.contains("All seats: Random AI"));
+        assert_eq!(log.matches("\nACTION ").count(), 2);
+        assert!(log.contains("UNFINISHED: action limit reached (2)"));
+        let stderr = String::from_utf8(output.stderr).unwrap();
+        assert!(
+            stderr.contains("Timing:")
+                && stderr.contains("AI selection")
+                && stderr.contains("single-threaded")
+        );
+        std::fs::remove_file(path).unwrap();
     }
 }

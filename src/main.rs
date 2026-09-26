@@ -361,14 +361,15 @@ fn card_choice_label(choice: &CardChoice) -> String {
         CardChoice::Card(id) => format!(" card:{id}"),
     }
 }
-const HELP:&str="Commands: select e2 (or e2), then e4 to play a highlighted action;\nmove e2 e4; take e4 d5; attack a1 a4; abilities e1; ability e1 teleport e3;\nability b1 muster; promote queen; pass; undo; log; scheduled; board; help; quit.\nMarkers: * selected, . move, x take, ! attack. Uppercase White, lowercase Black.\nRules: one action per turn, king removal wins, pawn double moves remain available.\nUse --abilities-demo for custom pieces and on-board Fire/Ice/Invulnerability cards.\nUse --events-demo for Mandragora, Tesla, spiders, Witch and Archer.\nUse --siege-demo for Shield Bearer, Builder, Wall, Ballista and Ram.\nDirectional abilities: ability b2 build b3; preview e2 pierce e3.\nCards: hand; card <name|ID>; play <name|ID> [square|event:ID|card:ID]; cards; discard; deck; clock.\nUse --cards-demo for ordered decks, utility cards, unlocks and clock events.\nUse --expansion-demo for Crazy Pawn, Cannon, Ship, Warlock, Catapult, Imp, Basilisk, Gargoyle, Mermaid, Golem, Ogre, Oni, Necromancer and Dragon; ~ marks magic tiles.\nTransport: ability a1 launch b1 d3 (target, then destination); preview uses the same arguments.\nUse --four-player for a 14x14 cross-shaped free-for-all; cells show player ID then piece. Last survivor wins.\nMermaid: ability c2 hasten event:1; abilities c2 lists eligible summons.\nOgre: preview e2 shove f2; ability e2 shove f2 pushes directly away.\nOni: ability h1 seek h2. Necromancer: ability d1 revive c3 (needs a friendly death).\nFull army setup: --full-board; combine with --four-player for a 24x24 cross. Terrain: terrain [square]; ~ marks magic; ordinary squares are buildable.\nAI: --ai random|first|heuristic controls all opponents; --players human,random,first,human assigns seats; --ai-seed N controls reproducibility. Four-player games remain FFA.\nNo check/checkmate, castling or en passant.";
+const HELP:&str="Commands: select e2 (or e2), then e4 to play a highlighted action;\nmove e2 e4; take e4 d5; attack a1 a4; abilities e1; ability e1 teleport e3;\nability b1 muster; promote queen; pass; undo; log; scheduled; board; help; quit.\nMarkers: * selected, . move, x take, ! attack. Uppercase White, lowercase Black.\nRules: one action per turn, king removal wins, pawn double moves remain available.\nUse --abilities-demo for custom pieces and on-board Fire/Ice/Invulnerability cards.\nUse --events-demo for Mandragora, Tesla, spiders, Witch and Archer.\nUse --siege-demo for Shield Bearer, Builder, Wall, Ballista and Ram.\nDirectional abilities: ability b2 build b3; preview e2 pierce e3.\nCards: hand; card <name|ID>; play <name|ID> [square|event:ID|card:ID]; cards; discard; deck; clock.\nUse --cards-demo for ordered decks, utility cards, unlocks and clock events.\nUse --expansion-demo for Crazy Pawn, Cannon, Ship, Warlock, Catapult, Imp, Basilisk, Gargoyle, Mermaid, Golem, Ogre, Oni, Necromancer and Dragon; ~ marks magic tiles.\nTransport: ability a1 launch b1 d3 (target, then destination); preview uses the same arguments.\nUse --four-player for a 14x14 cross-shaped free-for-all; cells show player ID then piece. Last survivor wins.\nMermaid: ability c2 hasten event:1; abilities c2 lists eligible summons.\nOgre: preview e2 shove f2; ability e2 shove f2 pushes directly away.\nOni: ability h1 seek h2. Necromancer: ability d1 revive c3 (needs a friendly death).\nFull army setup: --full-board; combine with --four-player for a 24x24 cross. Terrain: terrain [square]; ~ marks magic; ordinary squares are buildable.\nAI: --ai random|first|heuristic|mcts controls all opponents; --players human,random,first,human assigns seats; --ai-seed N controls reproducibility. Four-player games remain FFA.\nNo check/checkmate, castling or en passant.";
 
 fn ai_policy(name: &str) -> Result<cchess_engine::ai::AiPolicy, String> {
     match name {
         "random" => Ok(cchess_engine::ai::AiPolicy::Random),
         "first" => Ok(cchess_engine::ai::AiPolicy::First),
         "heuristic" => Ok(cchess_engine::ai::AiPolicy::Heuristic),
-        _ => Err("AI policy must be random, first or heuristic".into()),
+        "mcts" => Ok(cchess_engine::ai::AiPolicy::Mcts),
+        _ => Err("AI policy must be random, first, heuristic or mcts".into()),
     }
 }
 
@@ -378,15 +379,32 @@ fn automated_game(
     seed: u64,
     limit: Option<usize>,
 ) -> Result<(), Box<dyn std::error::Error>> {
+    let started = std::time::Instant::now();
+    let mut selection_time = std::time::Duration::ZERO;
     // Create before playing so an invalid path never wastes a simulation or overwrites a log.
     let file = std::fs::OpenOptions::new()
         .write(true)
         .create_new(true)
         .open(path)?;
     let mut log = io::BufWriter::new(file);
+    let seats = if game.players().iter().all(|p| {
+        game.ai_controller(p.id)
+            .is_some_and(|c| c.policy == cchess_engine::ai::AiPolicy::Random)
+    }) {
+        "All seats: Random AI".to_string()
+    } else {
+        format!(
+            "Seats: {}",
+            game.players()
+                .iter()
+                .map(|p| format!("{}={:?}", p.id, game.ai_controller(p.id).unwrap().policy))
+                .collect::<Vec<_>>()
+                .join(", ")
+        )
+    };
     writeln!(
         log,
-        "CCHESS AUTOMATED GAME\nAll seats: Random AI\nAI seed: {seed}\nPlayers: {}\nBoard: {} x {}",
+        "CCHESS AUTOMATED GAME\n{seats}\nAI seed: {seed}\nPlayers: {}\nBoard: {} x {}",
         game.players().len(),
         game.bounds().width,
         game.bounds().height
@@ -404,10 +422,12 @@ fn automated_game(
                 return Err(format!("action limit reached ({count}); game unfinished"));
             }
             let turn = game.turn().number;
+            let selection_started = std::time::Instant::now();
+            let intent = game.choose_ai_action();
+            selection_time += selection_started.elapsed();
             let action = game
-                .play_ai_step()
-                .map_err(|e| e.to_string())?
-                .ok_or("AI returned no action before game end")?;
+                .apply(intent.ok_or("AI returned no action before game end")?)
+                .map_err(|e| e.to_string())?;
             count += 1;
             writeln!(
                 log,
@@ -437,6 +457,10 @@ fn automated_game(
     log.flush()?;
     print!("{}", display(&game, None));
     eprintln!("{status} · {count} actions · log: {}", path.display());
+    let elapsed = started.elapsed().as_secs_f64();
+    eprintln!("Timing: {elapsed:.6}s total, {:.6}s AI selection, {:.3}ms/action, {:.2} actions/s (single-threaded)",
+        selection_time.as_secs_f64(), elapsed * 1000.0 / count.max(1) as f64,
+        count as f64 / elapsed.max(f64::EPSILON));
     result.map_err(Into::into)
 }
 
@@ -517,21 +541,19 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         return Err("--max-actions requires --auto-play".into());
     }
     if auto_log.is_some()
-        && (players.is_some()
-            || all_opponents.is_some()
-            || terminal_ui == Some(true)
+        && (terminal_ui == Some(true)
             || args
                 .iter()
                 .any(|a| a == "--print" || a.starts_with("--validate")))
     {
-        return Err("--auto-play configures all seats as Random AI; cannot combine with --ai, --players, --tui, --print or validation".into());
+        return Err("--auto-play cannot combine with --tui, --print or validation".into());
     }
     if players.is_some() && all_opponents.is_some() {
         return Err("use --ai or --players, not both".into());
     }
     match args.as_slice() {
         [flag] if flag == "--help" || flag == "-h" => {
-            println!("cchess-engine [--full-board | --abilities-demo | --events-demo | --siege-demo | --cards-demo | --expansion-demo | --four-player] [--print] [--tui | --cli] [--auto-play LOG_FILE [--max-actions N]] | --validate-assets [DIRECTORY] | --validate-deck FILE\n{HELP}");
+            println!("cchess-engine [--full-board | --abilities-demo | --events-demo | --siege-demo | --cards-demo | --expansion-demo | --four-player] [--print] [--tui | --cli] [--auto-play LOG_FILE [--ai POLICY | --players POLICIES] [--max-actions N]] | --validate-assets [DIRECTORY] | --validate-deck FILE\n{HELP}");
             return Ok(());
         }
         [flag] if flag == "--validate-assets" => {
@@ -616,22 +638,22 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         Game::classical(registry)?
     };
     let mut seats = Vec::new();
-    if auto_log.is_some() {
-        seats.extend(
-            game.players()
-                .iter()
-                .map(|p| (p.id, cchess_engine::ai::AiPolicy::Random)),
-        );
-    } else if let Some(spec) = players {
+    if let Some(spec) = players {
         let names: Vec<_> = spec.split(',').collect();
         if names.len() != game.players().len() {
             return Err("--players must list one controller per seat".into());
         }
         for (player, name) in game.players().iter().zip(names) {
+            if name == "human" && auto_log.is_some() {
+                return Err("--auto-play requires AI controllers for every seat".into());
+            }
             if name != "human" {
                 seats.push((player.id, ai_policy(name)?));
             }
         }
+    } else if auto_log.is_some() {
+        let policy = all_opponents.unwrap_or(cchess_engine::ai::AiPolicy::Random);
+        seats.extend(game.players().iter().map(|p| (p.id, policy)));
     } else if let Some(policy) = all_opponents {
         seats.extend(game.players().iter().skip(1).map(|p| (p.id, policy)));
     }

@@ -2,7 +2,7 @@ use crate::{
     commands::{ActionIntent, Event, ResolvedAction},
     content::{ActionKind, CompiledRule, Condition, Tag},
     geometry::Pos,
-    state::{EntityId, Game, PlayerId, StatusKind},
+    state::{EntityId, Game, PieceInstance, PlayerId, StatusKind},
     targeting,
 };
 
@@ -308,6 +308,7 @@ impl Game {
                 continue;
             }
             let targets = targeting::resolve(self, source, piece.owner, &rule.target);
+            let direction = self.random_direction(source);
             for target in targets.iter().copied() {
                 let intent = ActionIntent::Piece {
                     player: self.turn().player,
@@ -315,16 +316,7 @@ impl Game {
                     kind: rule.kind,
                     target,
                 };
-                if self
-                    .validate_piece_targets(
-                        self.turn().player,
-                        source,
-                        rule.kind,
-                        target,
-                        Some(&targets),
-                    )
-                    .is_ok()
-                {
+                if self.generated_piece_target_is_legal(piece, rule.kind, target, direction) {
                     actions.push(intent);
                 }
             }
@@ -356,6 +348,7 @@ impl Game {
                 continue;
             }
             let targets = targeting::resolve(self, source, piece.owner, &rule.target);
+            let direction = self.random_direction(source);
             for target in targets.iter().copied() {
                 let intent = ActionIntent::Piece {
                     player: self.turn().player,
@@ -363,35 +356,47 @@ impl Game {
                     kind,
                     target,
                 };
-                if self
-                    .validate_piece_targets(
-                        self.turn().player,
-                        source,
-                        kind,
-                        target,
-                        Some(&targets),
-                    )
-                    .is_ok()
-                    && !actions.contains(&intent)
-                {
+                if self.generated_piece_target_is_legal(piece, kind, target, direction) {
                     actions.push(intent);
                 }
             }
         }
         actions
     }
+    // Only called after eligibility and target resolution. Those checks are
+    // invariant across a rule's targets; direction selection is also pure and
+    // shared. Registry compilation rejects duplicate ordinary action kinds.
+    fn generated_piece_target_is_legal(
+        &self,
+        piece: &PieceInstance,
+        kind: ActionKind,
+        target: Pos,
+        direction: Option<(i32, i32)>,
+    ) -> bool {
+        target != piece.position
+            && direction.is_none_or(|d| {
+                d == (
+                    (target.x - piece.position.x).signum(),
+                    (target.y - piece.position.y).signum(),
+                )
+            })
+            && self
+                .at(target)
+                .is_none_or(|p| self.can_receive(piece.id, p.id, kind))
+    }
     /// Validate without writes, then commit a fully resolved snapshot atomically.
     /// All mutations and emitted events go through the effects layer.
     pub fn apply(&mut self, intent: ActionIntent) -> Result<ResolvedAction, RuleError> {
         self.validate(&intent)?;
-        let id = u64::try_from(self.state.log.len())
-            .ok()
-            .and_then(|n| n.checked_add(1))
+        let id = self
+            .action_count()
+            .checked_add(1)
             .ok_or(RuleError::CounterOverflow)?;
         if self.turn().number == u64::MAX {
             return Err(RuleError::CounterOverflow);
         }
         let mut next = Self {
+            simulation_actions: self.simulation_actions,
             registry: self.registry.clone(),
             state: self.state.clone_for_resolution(),
             occupancy: self.occupancy.clone(),
@@ -527,8 +532,12 @@ impl Game {
     }
     fn commit_resolution(&mut self, mut next: Self, resolved: &ResolvedAction) {
         debug_assert!(next.state.log.is_empty());
-        next.state.log = std::mem::take(&mut self.state.log);
-        next.state.log.push(resolved.clone());
+        if self.simulation_actions.is_some() {
+            self.simulation_actions = Some(resolved.id);
+        } else {
+            next.state.log = std::mem::take(&mut self.state.log);
+            next.state.log.push(resolved.clone());
+        }
         self.state = next.state;
         self.occupancy = next.occupancy;
         #[cfg(debug_assertions)]
@@ -537,7 +546,7 @@ impl Game {
     /// Resolve on an isolated copy, including triggered effects and turn transfer.
     /// The returned trace is exactly what applying the same intent now would emit.
     pub fn preview(&self, intent: &ActionIntent) -> Result<ResolvedAction, RuleError> {
-        self.clone().apply(intent.clone())
+        self.simulation().apply(intent.clone())
     }
     pub(crate) fn check_active(&self, source: EntityId, kind: ActionKind) -> Result<(), RuleError> {
         for status in [StatusKind::Deactivate, StatusKind::Ice] {
