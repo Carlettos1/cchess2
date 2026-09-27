@@ -140,3 +140,77 @@ seat; human seats are rejected. `--ai` and `--players` are mutually exclusive.
 It cannot be combined with `--tui`, `--print` or asset/deck validation. `--cli`
 is accepted but unnecessary. Stderr reports auto-play elapsed time, total AI
 selection time, milliseconds per action, and actions per second.
+
+## Evolving distinct opponents
+
+The `cchess-ai` package includes a deterministic evolutionary arena. It mutates
+compact policy genomes, runs color-swapped round-robin self-play, measures
+ability with an Elo-style rating, derives personality from observed action
+frequencies, and saves every generation as portable RON **stamps**.
+
+```sh
+cargo run --release -p cchess-ai --bin evolve -- \
+  --output ai-stamps --generations 10 --population 16 \
+  --max-actions 300 --seed 42
+```
+
+For two-player full-board training, first time a small probe:
+
+```sh
+time cargo run --release -p cchess-ai --bin evolve -- \
+  --preset full-board --output ai-stamps/full \
+  --generations 2 --population auto --threads auto \
+  --games-per-thread 1 --max-actions 5000 --seed 42
+```
+
+Then continue the same population for another 200 generations:
+
+```sh
+time cargo run --release -p cchess-ai --bin evolve -- \
+  --preset full-board --output ai-stamps/full \
+  --resume ai-stamps/full/generation-001.ron \
+  --generations 200 --threads auto --max-actions 5000 --seed 42
+```
+
+Each game runs independently on a bounded worker thread. `--threads auto` uses
+the machine's available parallelism; an integer sets an explicit worker limit.
+Results are applied afterward in canonical match order, so changing thread
+count does not change ratings or stamps.
+
+With `--population auto`, the largest population whose full color-swapped round
+robin fits `threads * games-per-thread` is selected. Thus 16 threads with one
+game per thread selects 4 agents (12 games), while `--games-per-thread 4`
+selects 8 agents (56 games within a capacity of 64). An explicit numeric
+population still works and is not limited by that sizing hint; workers simply
+take further games as they become free.
+
+`--generations` counts new generations when resuming. The population size is
+read from the resume file. A generation runs `population * (population - 1)`
+games because every pair plays both colors. The trainer lets games finish
+normally; `--max-actions` is only a safety cap, after which the position
+evaluator adjudicates the result. Each completed generation is saved before the
+next begins, making a long interrupted run resumable from its latest file.
+
+Each `Stamp` contains a stable ID, parent and generation, rating and match
+record, aggression/mobility/creativity/patience rates, and the exact genome.
+Call `cchess_ai::evolution::choose_action(&game, &stamp.genome)` from a UI,
+server, or human-play loop to use a saved personality. Every pairing is played
+from both sides to reduce first-move bias. Capped games are adjudicated by the
+public position evaluator; exact ties remain draws. This is evolutionary search
+over a transparent heuristic, not neural training; it is inexpensive,
+reproducible, debuggable, and produces useful checkpoints and match data for a
+later learned policy.
+
+Play against the highest-rated stamp in a saved generation (or pass a file
+containing one `Stamp`):
+
+```sh
+cargo run -- --ai-stamp ai-stamps/generation-009.ron
+cargo run -- --four-player --ai-stamp ai-stamps/generation-009.ron
+cargo run -- --auto-play evolved.txt \
+  --ai-stamp ai-stamps/generation-009.ron --max-actions 1000
+```
+
+Interactive games leave seat 0 human and assign the stamp to every opponent.
+Auto-play assigns it to every seat. The complete genome is copied into the game
+snapshot, so replay, undo, and saved games do not depend on the source file.

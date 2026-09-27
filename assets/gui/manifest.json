@@ -1,0 +1,250 @@
+{
+  "version": 1,
+  "pieces": {
+    "archer": {
+      "label": "Ar",
+      "name": "Archer",
+      "asset": "pieces/archer.svg"
+    },
+    "ballista": {
+      "label": "Ba",
+      "name": "Ballista",
+      "asset": "pieces/ballista.svg"
+    },
+    "basilisk": {
+      "label": "Bs",
+      "name": "Basilisk",
+      "asset": "pieces/basilisk.svg"
+    },
+    "bishop": {
+      "label": "Bi",
+      "name": "Bishop",
+      "asset": "pieces/bishop.svg"
+    },
+    "builder": {
+      "label": "Bu",
+      "name": "Builder",
+      "asset": "pieces/builder.svg"
+    },
+    "cannon": {
+      "label": "Ca",
+      "name": "Cannon",
+      "asset": "pieces/cannon.svg"
+    },
+    "catapult": {
+      "label": "Ct",
+      "name": "Catapult",
+      "asset": "pieces/catapult.svg"
+    },
+    "crazy_pawn": {
+      "label": "CP",
+      "name": "Crazy Pawn",
+      "asset": "pieces/crazy_pawn.svg"
+    },
+    "dragon": {
+      "label": "Dr",
+      "name": "Dragon",
+      "asset": "pieces/dragon.svg"
+    },
+    "gargoyle": {
+      "label": "Ga",
+      "name": "Gargoyle",
+      "asset": "pieces/gargoyle.svg"
+    },
+    "golem": {
+      "label": "Go",
+      "name": "Golem",
+      "asset": "pieces/golem.svg"
+    },
+    "imp": {
+      "label": "Im",
+      "name": "Imp",
+      "asset": "pieces/imp.svg"
+    },
+    "king": {
+      "label": "Ki",
+      "name": "King",
+      "asset": "pieces/king.svg"
+    },
+    "knight": {
+      "label": "Kn",
+      "name": "Knight",
+      "asset": "pieces/knight.svg"
+    },
+    "magician": {
+      "label": "Mg",
+      "name": "Magician",
+      "asset": "pieces/magician.svg"
+    },
+    "mandragora": {
+      "label": "Ma",
+      "name": "Mandragora",
+      "asset": "pieces/mandragora.svg"
+    },
+    "mermaid": {
+      "label": "Me",
+      "name": "Mermaid",
+      "asset": "pieces/mermaid.svg"
+    },
+    "necromancer": {
+      "label": "Ne",
+      "name": "Necromancer",
+      "asset": "pieces/necromancer.svg"
+    },
+    "ogre": {
+      "label": "Og",
+      "name": "Ogre",
+      "asset": "pieces/ogre.svg"
+    },
+    "oni": {
+      "label": "On",
+      "name": "Oni",
+      "asset": "pieces/oni.svg"
+    },
+    "paladin": {
+      "label": "Pl",
+      "name": "Paladin",
+      "asset": "pieces/paladin.svg"
+    },
+    "pawn": {
+      "label": "Pa",
+      "name": "Pawn",
+      "asset": "pieces/pawn.svg"
+    },
+    "portal": {
+      "label": "Po",
+      "name": "Portal",
+      "asset": "pieces/portal.svg"
+    },
+    "queen": {
+      "label": "Qu",
+      "name": "Queen",
+      "asset": "pieces/queen.svg"
+    },
+    "ram": {
+      "label": "Ra",
+      "name": "Ram",
+      "asset": "pieces/ram.svg"
+    },
+    "rook": {
+      "label": "Ro",
+      "name": "Rook",
+      "asset": "pieces/rook.svg"
+    },
+    "shield_bearer": {
+      "label": "SB",
+      "name": "Shield Bearer",
+      "asset": "pieces/shield_bearer.svg"
+    },
+    "ship": {
+      "label": "Sh",
+      "name": "Ship",
+      "asset": "pieces/ship.svg"
+    },
+    "spider": {
+      "label": "Sp",
+      "name": "Spider",
+      "asset": "pieces/spider.svg"
+    },
+    "spider_egg": {
+      "label": "Eg",
+      "name": "Spider Egg",
+      "asset": "pieces/spider_egg.svg"
+    },
+    "succubus": {
+      "label": "Su",
+      "name": "Succubus",
+      "asset": "pieces/succubus.svg"
+    },
+    "super_pawn": {
+      "label": "SP",
+      "name": "Super Pawn",
+      "asset": "pieces/super_pawn.svg"
+    },
+    "tesla_tower": {
+      "label": "Te",
+      "name": "Tesla Tower",
+      "asset": "pieces/tesla_tower.svg"
+    },
+    "wall": {
+      "label": "Wa",
+      "name": "Wall",
+      "asset": "pieces/wall.svg"
+    },
+    "warlock": {
+      "label": "Wl",
+      "name": "Warlock",
+      "asset": "pieces/warlock.svg"
+    },
+    "witch": {
+      "label": "Wi",
+      "name": "Witch",
+      "asset": "pieces/witch.svg"
+    }
+  },
+  "cards": {
+    "attack_demonic": {
+      "template": "cards/onboard.svg"
+    },
+    "blood_pact": {
+      "template": "cards/onboard.svg"
+    },
+    "cancel_event": {
+      "template": "cards/utility.svg"
+    },
+    "dispel": {
+      "template": "cards/utility.svg"
+    },
+    "event_haste": {
+      "template": "cards/utility.svg"
+    },
+    "fire": {
+      "template": "cards/onboard.svg"
+    },
+    "forced_march": {
+      "template": "cards/utility.svg"
+    },
+    "ice": {
+      "template": "cards/onboard.svg"
+    },
+    "insight": {
+      "template": "cards/utility.svg"
+    },
+    "invulnerability": {
+      "template": "cards/onboard.svg"
+    },
+    "lasting_momentum": {
+      "template": "cards/utility.svg"
+    },
+    "mana": {
+      "template": "cards/utility.svg"
+    },
+    "more_mana": {
+      "template": "cards/onboard.svg"
+    },
+    "revive": {
+      "template": "cards/onboard.svg"
+    },
+    "royal_decree": {
+      "template": "cards/onboard.svg"
+    },
+    "second_wind": {
+      "template": "cards/utility.svg"
+    },
+    "summon_dragon": {
+      "template": "cards/summon.svg"
+    },
+    "summon_knight": {
+      "template": "cards/summon.svg"
+    },
+    "summon_wall": {
+      "template": "cards/summon.svg"
+    },
+    "supply_cache": {
+      "template": "cards/utility.svg"
+    }
+  },
+  "fallback": "pieces/unknown.svg",
+  "cardBack": "cards/back.svg",
+  "appIcon": "app-icon.svg"
+}

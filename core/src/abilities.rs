@@ -79,6 +79,28 @@ impl Game {
         }
         Ok((definition, targets))
     }
+    /// Explain availability using the same checks as resolution, including target choices.
+    pub fn ability_availability(&self, source: EntityId, id: &str) -> Result<(), RuleError> {
+        if self.pending_promotion().is_some() {
+            return Err(RuleError::PromotionPending);
+        }
+        self.ability_eligibility(self.turn().player, source, id)?;
+        if self
+            .legal_abilities(source)
+            .iter()
+            .any(|intent| match intent {
+                ActionIntent::Ability { ability, .. }
+                | ActionIntent::Transport { ability, .. }
+                | ActionIntent::ScheduledAbility { ability, .. } => ability == id,
+                _ => false,
+            })
+        {
+            Ok(())
+        } else {
+            Err(RuleError::InvalidTarget)
+        }
+    }
+
     fn ability_eligibility(
         &self,
         player: PlayerId,

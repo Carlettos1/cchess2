@@ -1,0 +1,16 @@
+:root {
+  --cc-background: #151b20;
+  --cc-panel: #20292f;
+  --cc-border: #405059;
+  --cc-text: #f1eee5;
+  --cc-muted: #bac4c8;
+  --cc-square-light: #61716e;
+  --cc-square-dark: #3e4d4c;
+  --cc-accent: #e2bd72;
+  --cc-target: #b4dfbf;
+  --cc-danger: #f18e7f;
+  --cc-p0: #e2bd72;
+  --cc-p1: #82bcea;
+  --cc-p2: #c1a0ee;
+  --cc-p3: #f18e7f;
+}

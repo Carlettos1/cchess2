@@ -373,6 +373,19 @@ fn ai_policy(name: &str) -> Result<cchess_engine::ai::AiPolicy, String> {
     }
 }
 
+fn load_best_stamp(path: &Path) -> Result<cchess_engine::ai::evolution::Stamp, String> {
+    let text = std::fs::read_to_string(path).map_err(|e| format!("{}: {e}", path.display()))?;
+    if let Ok(stamp) = ron::from_str::<cchess_engine::ai::evolution::Stamp>(&text) {
+        return Ok(stamp);
+    }
+    let stamps: Vec<cchess_engine::ai::evolution::Stamp> = ron::from_str(&text)
+        .map_err(|e| format!("{} is not a stamp generation: {e}", path.display()))?;
+    stamps
+        .into_iter()
+        .max_by(|a, b| a.rating.cmp(&b.rating).then_with(|| b.id.cmp(&a.id)))
+        .ok_or_else(|| format!("{} contains no stamps", path.display()))
+}
+
 fn automated_game(
     mut game: Game,
     path: &Path,
@@ -473,6 +486,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut terminal_ui = None;
     let mut players = None;
     let mut all_opponents = None;
+    let mut stamp_path = None;
     let mut seed = 42_u64;
     let mut i = 0;
     while i < raw.len() {
@@ -510,7 +524,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 full_board = true;
                 i += 1;
             }
-            "--players" | "--ai" | "--ai-seed" => {
+            "--players" | "--ai" | "--ai-stamp" | "--ai-seed" => {
                 let value = raw.get(i + 1).ok_or("missing AI option value")?;
                 match raw[i].as_str() {
                     "--players" => {
@@ -521,6 +535,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     "--ai" => {
                         if all_opponents.replace(ai_policy(value)?).is_some() {
                             return Err("duplicate --ai".into());
+                        }
+                    }
+                    "--ai-stamp" => {
+                        if stamp_path.replace(value.clone()).is_some() {
+                            return Err("duplicate --ai-stamp".into());
                         }
                     }
                     _ => {
@@ -548,12 +567,16 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     {
         return Err("--auto-play cannot combine with --tui, --print or validation".into());
     }
-    if players.is_some() && all_opponents.is_some() {
-        return Err("use --ai or --players, not both".into());
+    if usize::from(players.is_some())
+        + usize::from(all_opponents.is_some())
+        + usize::from(stamp_path.is_some())
+        > 1
+    {
+        return Err("use only one of --ai, --ai-stamp or --players".into());
     }
     match args.as_slice() {
         [flag] if flag == "--help" || flag == "-h" => {
-            println!("cchess-engine [--full-board | --abilities-demo | --events-demo | --siege-demo | --cards-demo | --expansion-demo | --four-player] [--print] [--tui | --cli] [--auto-play LOG_FILE [--ai POLICY | --players POLICIES] [--max-actions N]] | --validate-assets [DIRECTORY] | --validate-deck FILE\n{HELP}");
+            println!("cchess-engine [--full-board | --abilities-demo | --events-demo | --siege-demo | --cards-demo | --expansion-demo | --four-player] [--print] [--tui | --cli] [--ai-stamp FILE] [--auto-play LOG_FILE [--ai POLICY | --ai-stamp FILE | --players POLICIES] [--max-actions N]] | --validate-assets [DIRECTORY] | --validate-deck FILE\n{HELP}");
             return Ok(());
         }
         [flag] if flag == "--validate-assets" => {
@@ -637,6 +660,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     } else {
         Game::classical(registry)?
     };
+    let stamp = stamp_path
+        .as_deref()
+        .map(Path::new)
+        .map(load_best_stamp)
+        .transpose()?;
     let mut seats = Vec::new();
     if let Some(spec) = players {
         let names: Vec<_> = spec.split(',').collect();
@@ -651,13 +679,34 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 seats.push((player.id, ai_policy(name)?));
             }
         }
-    } else if auto_log.is_some() {
+    } else if stamp.is_none() && auto_log.is_some() {
         let policy = all_opponents.unwrap_or(cchess_engine::ai::AiPolicy::Random);
         seats.extend(game.players().iter().map(|p| (p.id, policy)));
-    } else if let Some(policy) = all_opponents {
-        seats.extend(game.players().iter().skip(1).map(|p| (p.id, policy)));
+    } else if stamp.is_none() {
+        if let Some(policy) = all_opponents {
+            seats.extend(game.players().iter().skip(1).map(|p| (p.id, policy)));
+        }
     }
-    game = game.with_ai(seats, seed)?;
+    game = if let Some(stamp) = stamp {
+        eprintln!(
+            "Loaded evolved AI {} (rating {}, generation {}).",
+            stamp.id, stamp.rating, stamp.generation
+        );
+        let players: Vec<_> = if auto_log.is_some() {
+            game.players().iter().map(|p| p.id).collect()
+        } else {
+            game.players().iter().skip(1).map(|p| p.id).collect()
+        };
+        game.with_evolved_ai(
+            players
+                .into_iter()
+                .map(|player| (player, stamp.genome.clone()))
+                .collect(),
+            seed,
+        )?
+    } else {
+        game.with_ai(seats, seed)?
+    };
     if let Some(path) = auto_log {
         return automated_game(game, Path::new(&path), seed, max_actions);
     }

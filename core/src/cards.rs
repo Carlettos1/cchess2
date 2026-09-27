@@ -965,6 +965,19 @@ impl Game {
             },
         ))
     }
+    /// Explain card availability without duplicating eligibility rules in clients.
+    pub fn card_availability(&self, id: CardId) -> Result<(), RuleError> {
+        if self.pending_promotion().is_some() {
+            return Err(RuleError::PromotionPending);
+        }
+        self.card_eligibility(self.turn().player, id)?;
+        if self.legal_card_plays(id).is_empty() {
+            Err(RuleError::InvalidTarget)
+        } else {
+            Ok(())
+        }
+    }
+
     pub fn legal_card_plays(&self, id: CardId) -> Vec<ActionIntent> {
         let Some(instance) = self.card_instance(id) else {
             return vec![];

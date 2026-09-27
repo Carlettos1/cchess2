@@ -1,6 +1,6 @@
 [workspace]
-members = ["core", "AI", "tui"]
-default-members = [".", "core", "AI", "tui"]
+members = ["core", "AI", "tui", "session"]
+default-members = [".", "core", "AI", "tui", "session"]
 resolver = "2"
 
 [workspace.package]
@@ -19,6 +19,7 @@ crossterm = "0.29"
 name = "cchess-engine"
 version.workspace = true
 edition.workspace = true
+default-run = "cchess-engine"
 
 [dependencies]
 cchess-core.workspace = true

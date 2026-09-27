@@ -3,6 +3,7 @@ pub use cchess_core::ai::{AiController, AiPolicy};
 use cchess_core::{cards::MatchRng, ActionIntent, ActionKind, Game, ResolvedAction, RuleError};
 use std::collections::BTreeSet;
 
+pub mod evolution;
 pub mod heuristic;
 pub mod mcts;
 
@@ -52,6 +53,10 @@ impl GameAi for Game {
             AiPolicy::First => first_ai_action(self),
             AiPolicy::Heuristic => heuristic::choose_action(self),
             AiPolicy::Mcts => mcts::search(self, mcts::SearchConfig::default()).action,
+            AiPolicy::Evolved => controller
+                .genome
+                .as_ref()
+                .and_then(|genome| evolution::choose_action(self, genome)),
             AiPolicy::Random => {
                 let actions = self.ai_legal_actions();
                 if actions.is_empty() {
