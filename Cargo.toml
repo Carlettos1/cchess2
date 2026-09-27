@@ -29,3 +29,6 @@ ron.workspace = true
 
 [dev-dependencies]
 crossterm.workspace = true
+
+[profile.release]
+debug = true

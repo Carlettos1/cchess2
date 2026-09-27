@@ -1,0 +1,54 @@
+[
+    (
+        id: "g0-000",
+        generation: 0,
+        parent: None,
+        rating: 1023,
+        record: (
+            wins: 2,
+            losses: 0,
+            draws: 0,
+        ),
+        personality: (
+            aggression: 95,
+            mobility: 166,
+            creativity: 736,
+            patience: 1,
+        ),
+        genome: (
+            evaluation: 100,
+            capture: 80,
+            attack: 60,
+            movement: 0,
+            ability: 20,
+            card: 20,
+            patience: -30,
+        ),
+    ),
+    (
+        id: "g0-001",
+        generation: 0,
+        parent: None,
+        rating: 977,
+        record: (
+            wins: 0,
+            losses: 2,
+            draws: 0,
+        ),
+        personality: (
+            aggression: 128,
+            mobility: 140,
+            creativity: 730,
+            patience: 0,
+        ),
+        genome: (
+            evaluation: 104,
+            capture: 62,
+            attack: 60,
+            movement: 21,
+            ability: 52,
+            card: 53,
+            patience: 3,
+        ),
+    ),
+]
